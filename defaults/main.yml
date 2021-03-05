@@ -2,7 +2,7 @@
 # defaults file;
 # zabbix role specific
 
-zabbix_server_version: 4.4
+zabbix_server_version: 4.0.29
 zabbix_version: "{{ zabbix_server_version }}"
 zabbix_repo: zabbix
 
@@ -16,7 +16,7 @@ zabbix_service_enabled: True
 zabbix_repo_yum:
   - name: zabbix
     description: Zabbix Official Repository - $basearch
-    baseurl: http://repo.zabbix.com/zabbix/{{ zabbix_version }}/rhel/{{ ansible_distribution_major_version }}/$basearch/
+    baseurl: https://mirrors.tuna.tsinghua.edu.cn/zabbix/zabbix/{{ zabbix_version }}/rhel/{{ ansible_distribution_major_version }}/$basearch/
     gpgcheck: 0
     gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-ZABBIX
     state: present
@@ -28,11 +28,15 @@ zabbix_repo_yum:
     state: present
 
 # Database
-zabbix_server_database: pgsql
-zabbix_server_database_long: postgresql
+zabbix_server_database: mysql
+zabbix_server_database_long: mysql
 zabbix_database_creation: True
 zabbix_database_sqlload: True
-
+zabbix_restore_database: false
+mysql_user_home: /root
+zabbix_server_mysql_admin_user: zabbix
+zabbix_server_mysql_admin_password: toor
+zabbix_server_mysql_login_port: 3306
 # zabbix-server specific vars
 zabbix_server_listenport: 10051
 zabbix_server_sourceip:
@@ -50,8 +54,8 @@ zabbix_server_dbcollation: utf8_bin
 zabbix_server_dbschema:
 zabbix_server_dbuser: zabbix-server
 zabbix_server_dbpassword: zabbix-server
-zabbix_server_dbsocket:
-zabbix_server_dbport: 5432
+zabbix_server_dbsocket: /var/lib/mysql/mysql.sock
+zabbix_server_dbport: 3306
 zabbix_server_privileged_host: localhost
 zabbix_server_historystorageurl:
 zabbix_server_historystoragetypes: uint,dbl,str,log,text
