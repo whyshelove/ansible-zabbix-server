@@ -25,14 +25,6 @@
   tags:
     - zabbix-server
 
-- name: "RedHat | Set some facts Zabbix < 3.0"
-  set_fact:
-    datafiles_path: "/usr/share/doc/zabbix-server-{{ zabbix_server_database }}-{{ zabbix_version }}*"
-  when:
-    - zabbix_version is version('3.0', '<')
-  tags:
-    - zabbix-server
-
 - name: "RedHat | Set facts for Zabbix >= 3.0"
   set_fact:
     datafiles_path: "/usr/share/doc/zabbix-server-{{ zabbix_server_database }}-{{ zabbix_version }}*"
@@ -40,20 +32,6 @@
     - zabbix_version is version('3.0', '>=')
   tags:
     - zabbix-server
-
-- name: "RedHat | Set facts for RHEL8"
-  set_fact:
-    datafiles_path: "/usr/share/doc/zabbix-server-{{ zabbix_server_database }}"
-  when:
-    - ansible_distribution_major_version == "8"
-  tags:
-    - zabbix-server
-
-- name: "Make sure old file is absent"
-  file:
-    path: /etc/yum.repos.d/zabbix-supported.repo
-    state: absent
-  become: yes
 
 - name: "RedHat | Install basic repo file"
   yum_repository:
@@ -107,20 +85,6 @@
 - name: "RedHat | Install Mysql Client package RHEL7"
   yum:
     name:
-      - mariadb
-      - MySQL-python
-    state: present
-  register: zabbix_server_dependencies_installed
-  until: zabbix_server_dependencies_installed is succeeded
-  when:
-    - zabbix_server_database == 'mysql'
-    - ansible_distribution_major_version == "7"
-  tags:
-    - zabbix-server
-
-- name: "RedHat | Install Mysql Client package RHEL5 - 6"
-  yum:
-    name:
       - mysql
       - MySQL-python
     state: present
@@ -128,7 +92,7 @@
   until: zabbix_server_dependencies_installed is succeeded
   when:
     - zabbix_server_database == 'mysql'
-    - ansible_distribution_major_version == "6" or ansible_distribution_major_version == "5"
+    - ansible_distribution_major_version == "7"
   tags:
     - zabbix-server
 
@@ -147,15 +111,12 @@
   yum:
     name:
       - libsemanage-python
-      - policycoreutils
-      - checkpolicy
     state: present
   register: zabbix_server_dependencies_installed
   until: zabbix_server_dependencies_installed is succeeded
   when:
     - selinux_allow_zabbix_can_network
     - ansible_distribution_major_version == "7" or ansible_distribution_major_version == "6"
-    - zabbix_selinux | bool
   tags:
     - zabbix-server
 
@@ -169,7 +130,6 @@
   when:
     - selinux_allow_zabbix_can_network
     - ansible_distribution_major_version == "8"
-    - zabbix_selinux | bool
   tags:
     - zabbix-server
 
@@ -180,7 +140,6 @@
     persistent: yes
   when:
     - selinux_allow_zabbix_can_http
-    - zabbix_selinux | bool
   tags:
     - zabbix-server
 
@@ -191,41 +150,5 @@
     persistent: yes
   when:
     - selinux_allow_zabbix_can_network
-    - zabbix_selinux | bool
   tags:
     - zabbix-server
-
-- name: "RedHat | Install related SELinux package to fix issues"
-  yum:
-    name:
-      - policycoreutils-python
-    state: present
-  register: zabbix_server_dependencies_installed
-  until: zabbix_server_dependencies_installed is succeeded
-  when:
-    - ansible_distribution_major_version == "7" or ansible_distribution_major_version == "6"
-    - zabbix_selinux | bool
-  tags:
-    - zabbix-server
-
-- name: "RedHat | Install related SELinux package to fix issues on RHEL8"
-  yum:
-    name:
-      - policycoreutils
-      - checkpolicy
-    state: present
-  register: zabbix_server_dependencies_installed
-  until: zabbix_server_dependencies_installed is succeeded
-  when:
-    - ansible_distribution_major_version == "8"
-    - zabbix_selinux | bool
-  tags:
-    - zabbix-server
-
-- name: "RedHat | Add SEmodule to fix SELinux issue: zabbix_server_alerter.sock"
-  script:
-    cmd: files/install_semodule.bsx
-  args:
-    creates: /etc/selinux/targeted/active/modules/400/zabbix_server_add/cil
-  when:
-    - zabbix_selinux | bool
