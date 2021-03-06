@@ -32,7 +32,7 @@ zabbix_server_database: mysql
 zabbix_server_database_long: mysql
 zabbix_database_creation: True
 zabbix_database_sqlload: True
-mysql_user_home: /root
+
 zabbix_server_mysql_admin_user: zabbix
 zabbix_server_mysql_admin_password: toor
 zabbix_server_mysql_login_port: 3306
