@@ -9,6 +9,11 @@
     delegated_dbhost: "{{ zabbix_server_real_dbhost }}"
   when: zabbix_server_real_dbhost | default(false)
 
+- name: Copy user-my.cnf file with password credentials.
+  template:
+    src: "user-my.cnf.j2"
+    dest: "/root/.my.cnf"
+
 - name: "MySQL | Create database"
   mysql_db:
     name: "{{ zabbix_server_dbname }}"
