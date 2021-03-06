@@ -80,7 +80,6 @@
   when:
     - zabbix_version is version('3.0', '>=')
     - zabbix_database_sqlload | bool
-    - not done_file.stat.exists
   delegate_to: "{{ delegated_dbhost }}"
   tags:
     - zabbix-server
