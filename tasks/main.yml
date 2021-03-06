@@ -28,7 +28,14 @@
   include_tasks: "{{ ansible_os_family }}.yml"
 
 - name: "Installing the postgresql database"
-  include_tasks: "{{ zabbix_server_database_long }}.yml"
+  include_tasks: "postgresql.yml"
+  when:
+    - zabbix_server_database_long == "postgresql"
+
+- name: "Installing the mysql database"
+  include_tasks: "mysql.yml"
+  when:
+    - zabbix_server_database_long == "mysql"
 
 - name: "Configure zabbix-server"
   template:
