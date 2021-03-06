@@ -28,11 +28,6 @@
     - database
     - skip_ansible_lint
 
-- name: Copy user-my.cnf file with password credentials.
-  template:
-    src: "user-my.cnf.j2"
-    dest: "{{ mysql_user_home }}/.my.cnf"
-
 - name: "MySQL | Create database user"
   mysql_user:
     login_host: "{{ zabbix_server_mysql_login_host | default(omit) }}"
@@ -58,7 +53,6 @@
   when:
     - zabbix_version is version('3.0', '>=')
     - zabbix_database_sqlload | bool
-    - not done_file.stat.exists
     - ansible_distribution_release == "buster"
   delegate_to: "{{ delegated_dbhost }}"
   tags:
